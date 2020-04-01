@@ -9,6 +9,8 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="js/notes.js"></script>
         <title>JSP Page</title>
     </head>
     <body>
@@ -30,18 +32,27 @@
                 </form>    
             </c:forEach>
         </table><br>
-        <form method="POST">
-            
-<!--        <h1><c:out value="${view}" default="Add" />Note</h1>-->
-            <%--<c:if test="${type = edit}">--%>
-                <!--<p><h1>Edit Note</h1></p>-->
-            <%--</c:if>--%>
 
-            <h1>${view} Note</h1>
-            <input type="hidden" name="action" value="${type}"/>
-            <input type="text" placeholder="Title" value="${title}" name="Title"/><br>
-            <textarea rows="6" cols="35"  name="TextArea">${textArea}</textarea>
-            <input type="submit" value="${type}"/>
-        </form>
+        <c:if test="${view == null}">
+            <form method="POST" id="noteForm">
+
+                <h1>Add Note</h1>
+                <input type="hidden" name="action" value="Add"/>
+                <input type="text" placeholder="Title" value="${title}" name="Title" id="Title"/><br>
+                <textarea rows="6" cols="35"  name="TextArea" id="TextArea" >${textArea}</textarea>
+                <input type="submit" value="Add"/>
+            </form>
+        </c:if>
+
+        <c:if test="${view != null}">
+            <form method="POST" id="noteForm">
+
+                <h1>Edit Note</h1>
+                <input type="hidden" name="action" value="Save"/>
+                <input type="text" placeholder="Title" value="${title}" name="Title" id="Title" class="editNote"/><br>
+                <textarea rows="6" cols="35"  name="TextArea" id="TextArea" class="editNote" >${textArea}</textarea>
+                
+            </form>
+        </c:if>
     </body>
 </html>

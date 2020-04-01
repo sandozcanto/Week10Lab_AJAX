@@ -42,16 +42,33 @@ public class NoteServlet extends HttpServlet {
         HttpSession session = request.getSession();
         NoteService ns = new NoteService();
 
-        List<Note> noteList = null;
-        try {
-            noteList = ns.getAll();
-            session.setAttribute("noteList", noteList);
-        } catch (Exception ex) {
-            Logger.getLogger(NoteService.class.getName()).log(Level.SEVERE, null, ex);
+        boolean ajax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
+
+        if (ajax) {
+
+            List<Note> noteList = null;
+            try {
+                noteList = ns.getAll();
+                request.setAttribute("noteList", noteList);
+
+                return;
+            } catch (Exception ex) {
+                Logger.getLogger(NoteService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } else {
+
+            List<Note> noteList = null;
+            try {
+                noteList = ns.getAll();
+                request.setAttribute("noteList", noteList);
+
+            } catch (Exception ex) {
+                Logger.getLogger(NoteService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            getServletContext().getRequestDispatcher("/WEB-INF/notes.jsp").forward(request, response);
         }
-        session.setAttribute("view", "Add");
-        session.setAttribute("type", "Add");
-        getServletContext().getRequestDispatcher("/WEB-INF/notes.jsp").forward(request, response);
     }
 
     @Override
@@ -69,8 +86,8 @@ public class NoteServlet extends HttpServlet {
                 String textArea = request.getParameter("TextArea");
                 ns.insert(getnewId(ns.getAll()), new Date(), title, textArea);
 
-                session.setAttribute("title", "");
-                session.setAttribute("textArea", "");
+                request.setAttribute("title", "");
+                request.setAttribute("textArea", "");
 
             } else if (action.equals("Edit")) {
 
@@ -82,25 +99,19 @@ public class NoteServlet extends HttpServlet {
                 } catch (Exception ex) {
                     Logger.getLogger(NoteServlet.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
-                session.setAttribute("view", "Edit");
+                System.out.println(action);
+                request.setAttribute("view", "Edit");
                 session.setAttribute("updateID", noteId);
-                session.setAttribute("type", "Save");
-                session.setAttribute("title", idList.getTitle());
-                session.setAttribute("textArea", idList.getContents());
+                request.setAttribute("title", idList.getTitle());
+                request.setAttribute("textArea", idList.getContents());
 
             } else if (action.equals("Save")) {
-
                 String title = request.getParameter("Title");
                 String textArea = request.getParameter("TextArea");
+
                 int uID = (int) session.getAttribute("updateID");
 
                 ns.update(uID, new Date(), title, textArea);
-
-                session.setAttribute("type", "Add");
-                session.setAttribute("view", "Add");
-                session.setAttribute("title", "");
-                session.setAttribute("textArea", "");
             }
 
         } catch (Exception ex) {
@@ -111,7 +122,7 @@ public class NoteServlet extends HttpServlet {
 
         try {
             noteList = ns.getAll();
-            session.setAttribute("noteList", noteList);
+            request.setAttribute("noteList", noteList);
         } catch (Exception ex) {
             Logger.getLogger(NoteService.class.getName()).log(Level.SEVERE, null, ex);
         }
